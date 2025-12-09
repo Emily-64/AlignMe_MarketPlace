@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(const MyApp());
@@ -7,115 +8,302 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
+      title: 'AlignMe Marketplace',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        primarySwatch: Colors.purple,
+        scaffoldBackgroundColor: Colors.grey[100],
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MarketplaceHome(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class MarketplaceHome extends StatefulWidget {
+  const MarketplaceHome({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MarketplaceHome> createState() => _MarketplaceHomeState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _MarketplaceHomeState extends State<MarketplaceHome> {
+  final TextEditingController searchController = TextEditingController();
 
-  void _incrementCounter() {
+  final List<Map<String, dynamic>> products = [
+    {
+      "title": "Yoga Mat",
+      "price": "₹799",
+      "category": "Yoga",
+      "brand": "FitPro",
+      "amazon": "https://www.amazon.in/s?k=yoga+mat",
+      "flipkart": "https://www.flipkart.com/search?q=yoga+mat",
+    },
+    {
+      "title": "Resistance Band",
+      "price": "₹499",
+      "category": "Strength",
+      "brand": "FlexMax",
+      "amazon": "https://www.amazon.in/s?k=resistance+band",
+      "flipkart": "https://www.flipkart.com/search?q=resistance+band",
+    },
+    {
+      "title": "Dumbbells (Pair)",
+      "price": "₹1499",
+      "category": "Strength",
+      "brand": "ProLift",
+      "amazon": "https://www.amazon.in/s?k=dumbbells",
+      "flipkart": "https://www.flipkart.com/search?q=dumbbells",
+    },
+    {
+      "title": "Yoga Blocks",
+      "price": "₹399",
+      "category": "Yoga",
+      "brand": "ZenFit",
+      "amazon": "https://www.amazon.in/s?k=yoga+blocks",
+      "flipkart": "https://www.flipkart.com/search?q=yoga+blocks",
+    },
+  ];
+
+  List<Map<String, dynamic>> filteredProducts = [];
+
+  String selectedCategory = "All";
+  String selectedBrand = "All";
+  String selectedSort = "None";
+
+  @override
+  void initState() {
+    super.initState();
+    filteredProducts = List.from(products);
+
+    searchController.addListener(() {
+      applyFilters();
+    });
+  }
+
+  void applyFilters() {
+    String query = searchController.text.toLowerCase();
+
+    List<Map<String, dynamic>> results = products.where((item) {
+      bool matchesSearch = item["title"].toLowerCase().contains(query);
+      bool matchesCategory =
+          selectedCategory == "All" || item["category"] == selectedCategory;
+      bool matchesBrand = selectedBrand == "All" || item["brand"] == selectedBrand;
+      return matchesSearch && matchesCategory && matchesBrand;
+    }).toList();
+
+    if (selectedSort == "Price: Low to High") {
+      results.sort((a, b) =>
+          int.parse(a["price"].replaceAll(RegExp(r'[^0-9]'), '')) -
+          int.parse(b["price"].replaceAll(RegExp(r'[^0-9]'), '')));
+    } else if (selectedSort == "Price: High to Low") {
+      results.sort((a, b) =>
+          int.parse(b["price"].replaceAll(RegExp(r'[^0-9]'), '')) -
+          int.parse(a["price"].replaceAll(RegExp(r'[^0-9]'), '')));
+    }
+
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      filteredProducts = results;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: const Text("AlignMe Marketplace"),
+        elevation: 1,
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            // Search Bar
+            TextField(
+              controller: searchController,
+              decoration: InputDecoration(
+                hintText: "Search accessories...",
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Categories
+            const Text(
+              "Categories",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                categoryChip("Yoga"),
+                categoryChip("Strength"),
+                categoryChip("Accessories"),
+                categoryChip("All"),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Filters
+            Row(
+              children: [
+                filterDropdown(
+                  "Sort",
+                  ["None", "Price: Low to High", "Price: High to Low"],
+                  selectedSort,
+                  (value) {
+                    selectedSort = value!;
+                    applyFilters();
+                  },
+                ),
+                const SizedBox(width: 10),
+                filterDropdown(
+                  "Brand",
+                  ["All", "FitPro", "FlexMax", "ProLift", "ZenFit"],
+                  selectedBrand,
+                  (value) {
+                    selectedBrand = value!;
+                    applyFilters();
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              "Products",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+
+            // Product List
+            Expanded(
+              child: ListView.builder(
+                itemCount: filteredProducts.length,
+                itemBuilder: (context, index) {
+                  final item = filteredProducts[index];
+                  return Card(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ListTile(
+                      title: Text(item["title"]),
+                      subtitle: Text(item["price"]),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.arrow_forward_ios),
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ProductDetails(product: item),
+                            ),
+                          );
+                        },
+                      ),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ProductDetails(product: item),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+    );
+  }
+
+  Widget categoryChip(String label) {
+    bool isSelected = selectedCategory == label;
+
+    return ChoiceChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (_) {
+        setState(() {
+          selectedCategory = label;
+        });
+        applyFilters();
+      },
+    );
+  }
+
+  Widget filterDropdown(
+      String label, List<String> options, String selectedValue, Function(String?) onChanged) {
+    return Expanded(
+      child: DropdownButtonFormField<String>(
+        value: selectedValue,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Colors.white,
+          labelText: label,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        items: options
+            .map((value) => DropdownMenuItem(value: value, child: Text(value)))
+            .toList(),
+        onChanged: onChanged,
+      ),
+    );
+  }
+}
+
+class ProductDetails extends StatelessWidget {
+  final Map<String, dynamic> product;
+  const ProductDetails({super.key, required this.product});
+
+  Future<void> openLink(BuildContext context, String url) async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Could not open link")),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(product["title"])),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Price: ${product["price"]}", style: const TextStyle(fontSize: 20)),
+            const SizedBox(height: 10),
+            Text("Category: ${product["category"]}", style: const TextStyle(fontSize: 18)),
+            const SizedBox(height: 10),
+            Text("Brand: ${product["brand"]}", style: const TextStyle(fontSize: 18)),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () => openLink(context, product["amazon"]),
+              child: const Text("Buy on Amazon"),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () => openLink(context, product["flipkart"]),
+              child: const Text("Buy on Flipkart"),
+            ),
+          ],
+        ),
       ),
     );
   }
