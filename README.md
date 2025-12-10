@@ -16,8 +16,10 @@ Clean UI, fast performance, and built-in redirection to e-commerce platforms (Am
 ⚡ Fast and Simple Navigation – Minimalistic, user-friendly flow
 
 🚀 Getting Started
+
 1️⃣ Clone the repository
 git clone https://github.com/Emily-64/AlignMe_MarketPlace.git
+
 cd AlignMe_MarketPlace
 
 2️⃣ Install dependencies
