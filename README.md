@@ -1,9 +1,10 @@
-🧘‍♀️ AlignMe Marketplace
+🧘‍♀️ **AlignMe Marketplace**
 
 A Flutter-based marketplace app where users can explore and purchase yoga and fitness products.
 Clean UI, fast performance, and built-in redirection to e-commerce platforms (Amazon/Flipkart).
 
-✨ Features
+
+✨ **Features**
 
 🛍 Product Listings – Browse yoga and fitness essentials
 
@@ -15,11 +16,11 @@ Clean UI, fast performance, and built-in redirection to e-commerce platforms (Am
 
 ⚡ Fast and Simple Navigation – Minimalistic, user-friendly flow
 
-🚀 Getting Started
+
+🚀 **Getting Started**
 
 1️⃣ Clone the repository
 git clone https://github.com/Emily-64/AlignMe_MarketPlace.git
-
 cd AlignMe_MarketPlace
 
 2️⃣ Install dependencies
@@ -28,17 +29,18 @@ flutter pub get
 3️⃣ Run the project
 flutter run
 
-🔧 Tech Stack
+🔧 **Tech Stack**
 
-Flutter (Dart)
+-Flutter (Dart)
 
-Material Design
+-Material Design
 
-url_launcher package
+-url_launcher package
 
-GitHub for version control
+-GitHub for version control
 
-📦 Packages Used
-Package	Purpose
-url_launcher	Open external links (Amazon/Flipkart)
-flutter/material.dart	UI Components
+📦 **Packages Used**
+
+-url_launcher :	Open external links (Amazon/Flipkart)
+
+-flutter/material.dart :	UI Components
