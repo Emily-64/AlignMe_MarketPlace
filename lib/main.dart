@@ -14,21 +14,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'AlignMe Marketplace',
-      theme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xFFE8ECFF),
-        primaryColor: const Color(0xFF6A1B9A),
-        iconTheme: const IconThemeData(color: Color(0xFF4A148C)),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF6A1B9A),
-          foregroundColor: Colors.white,
-          elevation: 0,
-        ),
-        cardColor: Colors.white,
-        colorScheme:
-            ColorScheme.fromSwatch(primarySwatch: Colors.purple).copyWith(
-          secondary: const Color(0xFF4527A0),
-        ),
-      ),
       home: const MarketplaceHome(),
     );
   }
@@ -45,15 +30,9 @@ class _MarketplaceHomeState extends State<MarketplaceHome> {
   final TextEditingController searchController = TextEditingController();
   List<String> wishlist = [];
 
-  int selectedTabIndex = 0;
-
-  final List<String> navCategories = [
-    "All",
-    "Yoga",
-    "Strength",
-    "Accessories",
-    "Clothing",
-  ];
+  String selectedCategory = "All";
+  String selectedBrand = "All";
+  String selectedSort = "None";
 
   final List<Map<String, dynamic>> products = [
     {
@@ -63,6 +42,7 @@ class _MarketplaceHomeState extends State<MarketplaceHome> {
       "category": "Yoga",
       "brand": "Boldfit",
       "amazon": "https://www.amazon.in/s?k=boldfit+yoga+mat",
+      "image": "https://m.media-amazon.com/images/I/617gCKmEkJL._SX679_.jpg",
       "flipkart": "https://www.flipkart.com/search?q=boldfit+yoga+mat",
     },
     {
@@ -71,6 +51,7 @@ class _MarketplaceHomeState extends State<MarketplaceHome> {
       "price": "₹629",
       "category": "Strength",
       "brand": "Fashnex",
+       "image": "https://m.media-amazon.com/images/I/617gCKmEkJL._SX679_.jpg",
       "amazon": "https://www.amazon.in/s?k=fashnex+resistance+band",
       "flipkart": "https://www.flipkart.com/search?q=strauss+resistance+band",
     },
@@ -80,6 +61,7 @@ class _MarketplaceHomeState extends State<MarketplaceHome> {
       "price": "₹1,349",
       "category": "Strength",
       "brand": "AmazonBasics",
+       "image": "https://m.media-amazon.com/images/I/617gCKmEkJL._SX679_.jpg",
       "amazon": "https://www.amazon.in/s?k=amazonbasics+dumbbells",
       "flipkart": "https://www.flipkart.com/search?q=dumbbells",
     },
@@ -89,6 +71,7 @@ class _MarketplaceHomeState extends State<MarketplaceHome> {
       "price": "₹789",
       "category": "Yoga",
       "brand": "Boldfit",
+       "image": "https://m.media-amazon.com/images/I/617gCKmEkJL._SX679_.jpg",
       "amazon": "https://www.amazon.in/s?k=boldfit+yoga+blocks",
       "flipkart": "https://www.flipkart.com/search?q=yoga+blocks",
     },
@@ -98,14 +81,13 @@ class _MarketplaceHomeState extends State<MarketplaceHome> {
       "price": "₹399",
       "category": "Clothing",
       "brand": "Boldfit",
+       "image": "https://m.media-amazon.com/images/I/617gCKmEkJL._SX679_.jpg",
       "amazon": "https://www.amazon.in/s?k=boldfit+gym+tshirt",
       "flipkart": "https://www.flipkart.com/search?q=boldfit+gym+tshirt",
     },
   ];
 
   List<Map<String, dynamic>> filteredProducts = [];
-  String selectedBrand = "All";
-  String selectedSort = "None";
 
   @override
   void initState() {
@@ -116,221 +98,287 @@ class _MarketplaceHomeState extends State<MarketplaceHome> {
   }
 
   Future<void> loadWishlist() async {
-    final prefs = await SharedPreferences.getInstance();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     wishlist = prefs.getStringList("wishlist") ?? [];
     setState(() {});
   }
 
   Future<void> saveWishlist() async {
-    final prefs = await SharedPreferences.getInstance();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setStringList("wishlist", wishlist);
   }
 
   void toggleWishlist(String id) {
     setState(() {
-      if (wishlist.contains(id)) {
-        wishlist.remove(id);
-      } else {
-        wishlist.add(id);
-      }
+      wishlist.contains(id) ? wishlist.remove(id) : wishlist.add(id);
       saveWishlist();
     });
   }
 
   void applyFilters() {
     String query = searchController.text.toLowerCase();
-    String selectedNavCategory = navCategories[selectedTabIndex];
 
     List<Map<String, dynamic>> results = products.where((item) {
-      bool matchesSearch =
-          item["title"].toLowerCase().contains(query);
-
-      bool matchesCategory =
-          selectedNavCategory == "All" ||
-              item["category"] == selectedNavCategory;
-
-      bool matchesBrand =
-          selectedBrand == "All" ||
-              item["brand"] == selectedBrand;
-
-      return matchesSearch && matchesCategory && matchesBrand;
+      bool s = item["title"].toLowerCase().contains(query);
+      bool c = selectedCategory == "All" || item["category"] == selectedCategory;
+      bool b = selectedBrand == "All" || item["brand"] == selectedBrand;
+      return s && c && b;
     }).toList();
 
     if (selectedSort == "Price: Low to High") {
-      results.sort((a, b) =>
-          int.parse(a["price"].replaceAll(RegExp(r'[^0-9]'), '')) -
+      results.sort((a, b) => int.parse(a["price"].replaceAll(RegExp(r'[^0-9]'), '')) -
           int.parse(b["price"].replaceAll(RegExp(r'[^0-9]'), '')));
-    } else if (selectedSort == "Price: High to Low") {
-      results.sort((a, b) =>
-          int.parse(b["price"].replaceAll(RegExp(r'[^0-9]'), '')) -
+    }
+
+    if (selectedSort == "Price: High to Low") {
+      results.sort((a, b) => int.parse(b["price"].replaceAll(RegExp(r'[^0-9]'), '')) -
           int.parse(a["price"].replaceAll(RegExp(r'[^0-9]'), '')));
     }
 
-    setState(() {
-      filteredProducts = results;
-    });
+    setState(() => filteredProducts = results);
   }
+
+  // ---------------- CATEGORY BUTTON ----------------
+
+  Widget categoryButton(String label) {
+    bool selected = selectedCategory == label;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: GestureDetector(
+        onTap: () {
+          setState(() => selectedCategory = label);
+          applyFilters();
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+          decoration: BoxDecoration(
+            color: selected ? const Color(0xFFA998FF) : const Color(0xFFD4CDFF),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: selected ? Colors.white : Colors.black87,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ---------------- PRODUCT CARD ----------------
+
+  Widget productCard(Map<String, dynamic> item) {
+    bool fav = wishlist.contains(item["id"]);
+
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: ListTile(
+        title: Text(item["title"]),
+        subtitle: Text(item["price"]),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: Icon(
+                fav ? Icons.favorite : Icons.favorite_border,
+                color: fav ? Colors.red : Colors.grey,
+              ),
+              onPressed: () => toggleWishlist(item["id"]),
+            ),
+            const Icon(Icons.arrow_forward_ios),
+          ],
+        ),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ProductDetails(product: item),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // ---------------- UI SECTION ----------------
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("AlignMe Marketplace"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.favorite_outline),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => WishlistPage(
-                    products: products,
-                    wishlist: wishlist,
-                    onToggle: toggleWishlist,
-                  ),
-                ),
-              );
-            },
-          )
-        ],
-      ),
-
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(
-              controller: searchController,
-              decoration: InputDecoration(
-                hintText: "Search products...",
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            Row(
-              children: [
-                Expanded(
-                  child: DropdownButtonFormField<String>(
-                    value: selectedSort,
-                    decoration: const InputDecoration(labelText: "Sort"),
-                    items: ["None", "Price: Low to High", "Price: High to Low"]
-                        .map((e) =>
-                        DropdownMenuItem(value: e, child: Text(e)))
-                        .toList(),
-                    onChanged: (v) {
-                      selectedSort = v!;
-                      applyFilters();
-                    },
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: DropdownButtonFormField<String>(
-                    value: selectedBrand,
-                    decoration: const InputDecoration(labelText: "Brand"),
-                    items: ["All", "Boldfit", "Fashnex", "AmazonBasics", "HRX"]
-                        .map((e) =>
-                        DropdownMenuItem(value: e, child: Text(e)))
-                        .toList(),
-                    onChanged: (v) {
-                      selectedBrand = v!;
-                      applyFilters();
-                    },
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-            Expanded(
-              child: ListView.builder(
-                itemCount: filteredProducts.length,
-                itemBuilder: (context, index) {
-                  final item = filteredProducts[index];
-                  bool isFav = wishlist.contains(item["id"]);
-
-                  return Card(
-                    child: ListTile(
-                      title: Text(item["title"]),
-                      subtitle: Text(item["price"]),
-                      trailing: Wrap(
-                        spacing: 10,
-                        children: [
-                          IconButton(
-                            icon: Icon(
-                              isFav
-                                  ? Icons.favorite
-                                  : Icons.favorite_border,
-                              color:
-                              isFav ? Colors.red : Colors.grey,
-                            ),
-                            onPressed: () =>
-                                toggleWishlist(item["id"]),
+      body: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFFEDEBFF),
+              Color(0xFFDCD6FF),
+              Color(0xFFC9C2FF),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // TOP SECTION
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                child: Column(
+                  children: [
+                    // BACK + TITLE + WISHLIST
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back, size: 28),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        const Text(
+                          "AlignMe Marketplace",
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black,
                           ),
-                          const Icon(Icons.arrow_forward_ios),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.favorite_border, size: 28),
+                          onPressed: openWishlist,
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // SEARCH BAR
+                    TextField(
+                      controller: searchController,
+                      decoration: InputDecoration(
+                        hintText: "Search products...",
+                        prefixIcon: const Icon(Icons.search),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 14),
+
+                    // CATEGORY SCROLL
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          categoryButton("All"),
+                          categoryButton("Yoga"),
+                          categoryButton("Strength"),
+                          categoryButton("Accessories"),
+                          categoryButton("Clothing"),
                         ],
                       ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                ProductDetails(product: item),
-                          ),
-                        );
-                      },
                     ),
-                  );
-                },
+                  ],
+                ),
               ),
-            ),
-          ],
+
+              const SizedBox(height: 20),
+
+              // FILTERS
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        value: selectedSort,
+                        decoration: const InputDecoration(
+                          labelText: "Sort",
+                          border: InputBorder.none,
+                        ),
+                        items: ["None", "Price: Low to High", "Price: High to Low"]
+                            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                            .toList(),
+                        onChanged: (v) {
+                          selectedSort = v!;
+                          applyFilters();
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        value: selectedBrand,
+                        decoration: const InputDecoration(
+                          labelText: "Brand",
+                          border: InputBorder.none,
+                        ),
+                        items: ["All", "Boldfit", "Fashnex", "AmazonBasics", "HRX"]
+                            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                            .toList(),
+                        onChanged: (v) {
+                          selectedBrand = v!;
+                          applyFilters();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // PRODUCT LIST
+              Expanded(
+                child: ListView.builder(
+                  itemCount: filteredProducts.length,
+                  itemBuilder: (context, i) {
+                    return productCard(filteredProducts[i]);
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
+    );
+  }
 
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: selectedTabIndex,
-        onTap: (index) {
-          setState(() {
-            selectedTabIndex = index;
-          });
-          applyFilters();
-        },
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.home), label: "All"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.self_improvement), label: "Yoga"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.fitness_center), label: "Strength"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.backpack), label: "Accessories"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.checkroom), label: "Clothing"),
-        ],
+  void openWishlist() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => WishlistPage(
+          wishlist: wishlist,
+          products: products,
+          onToggle: toggleWishlist,
+        ),
       ),
     );
   }
 }
 
+
+// ---------------- PRODUCT DETAILS PAGE ----------------
 class ProductDetails extends StatelessWidget {
   final Map<String, dynamic> product;
   const ProductDetails({super.key, required this.product});
 
   Future<void> openLink(BuildContext context, String url) async {
     final Uri uri = Uri.parse(url);
-    if (!await launchUrl(uri,
-        mode: LaunchMode.externalApplication)) {
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Could not open link")),
       );
@@ -340,36 +388,175 @@ class ProductDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(product["title"])),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Price: ${product["price"]}",
-                style: const TextStyle(fontSize: 20)),
-            const SizedBox(height: 10),
-            Text("Category: ${product["category"]}"),
-            const SizedBox(height: 10),
-            Text("Brand: ${product["brand"]}"),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () =>
-                  openLink(context, product["amazon"]),
-              child: const Text("Buy on Amazon"),
+      body: Container(
+        width: double.infinity,
+
+        // FULL-SCREEN GRADIENT
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFFEDEBFF),
+              Color(0xFFDCD6FF),
+              Color(0xFFC9C2FF),
+            ],
+          ),
+        ),
+
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: MediaQuery.of(context).size.height,
+              ),
+
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    
+                    // --------- TOP BAR (Back + Title) ----------
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back, size: 28),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        const SizedBox(width: 10),
+                        Flexible(
+                          child: Text(
+                            product["title"],
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+
+// ---------- PRODUCT IMAGE CLEAN & MODERN ----------
+Container(
+  margin: const EdgeInsets.only(top: 10, bottom: 20),
+  decoration: BoxDecoration(
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(26),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black12,
+        blurRadius: 10,
+        offset: const Offset(0, 4),
+      ),
+    ],
+  ),
+  child: ClipRRect(
+    borderRadius: BorderRadius.circular(26),
+    child: Image.network(
+      product["image"],
+      width: double.infinity,
+      height: 260,
+      fit: BoxFit.contain, // ← fills the box beautifully
+    ),
+  ),
+),
+
+                    // --------- PRODUCT INFO ----------
+                    Text(
+                      "Price: ${product["price"]}",
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    Text(
+                      "Category: ${product["category"]}",
+                      style: const TextStyle(fontSize: 18),
+                    ),
+
+                    const SizedBox(height: 6),
+
+                    Text(
+                      "Brand: ${product["brand"]}",
+                      style: const TextStyle(fontSize: 18),
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    // --------- AMAZON BUTTON ----------
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: () => openLink(context, product["amazon"]),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.purple,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 40,
+                            vertical: 16,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 4,
+                        ),
+                        child: const Text(
+                          "Buy on Amazon",
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // --------- FLIPKART BUTTON ----------
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: () => openLink(context, product["flipkart"]),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.purple,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 40,
+                            vertical: 16,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 4,
+                        ),
+                        child: const Text(
+                          "Buy on Flipkart",
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 40), // keeps gradient visible at bottom
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () =>
-                  openLink(context, product["flipkart"]),
-              child: const Text("Buy on Flipkart"),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
+
+
+
+
+
+
+// ---------------- WISHLIST PAGE ----------------
 
 class WishlistPage extends StatelessWidget {
   final List<Map<String, dynamic>> products;
@@ -385,31 +572,29 @@ class WishlistPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> favProducts =
-    products.where((p) => wishlist.contains(p["id"])).toList();
+    final favProducts =
+        products.where((p) => wishlist.contains(p["id"])).toList();
 
     return Scaffold(
       appBar: AppBar(title: const Text("My Wishlist")),
       body: favProducts.isEmpty
           ? const Center(child: Text("No favorites yet ❤️"))
           : ListView.builder(
-        itemCount: favProducts.length,
-        itemBuilder: (context, index) {
-          final item = favProducts[index];
-          return Card(
-            child: ListTile(
-              title: Text(item["title"]),
-              subtitle: Text(item["price"]),
-              trailing: IconButton(
-                icon:
-                const Icon(Icons.favorite, color: Colors.red),
-                onPressed: () =>
-                    onToggle(item["id"]),
-              ),
+              itemCount: favProducts.length,
+              itemBuilder: (context, i) {
+                final item = favProducts[i];
+                return Card(
+                  child: ListTile(
+                    title: Text(item["title"]),
+                    subtitle: Text(item["price"]),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.favorite, color: Colors.red),
+                      onPressed: () => onToggle(item["id"]),
+                    ),
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 }
