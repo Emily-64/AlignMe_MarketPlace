@@ -51,7 +51,7 @@ class _MarketplaceHomeState extends State<MarketplaceHome> {
       "price": "₹629",
       "category": "Strength",
       "brand": "Fashnex",
-       "image": "https://m.media-amazon.com/images/I/617gCKmEkJL._SX679_.jpg",
+       "image": "https://m.media-amazon.com/images/I/71-87y93B+L._SX679_.jpg",
       "amazon": "https://www.amazon.in/s?k=fashnex+resistance+band",
       "flipkart": "https://www.flipkart.com/search?q=strauss+resistance+band",
     },
@@ -61,7 +61,7 @@ class _MarketplaceHomeState extends State<MarketplaceHome> {
       "price": "₹1,349",
       "category": "Strength",
       "brand": "AmazonBasics",
-       "image": "https://m.media-amazon.com/images/I/617gCKmEkJL._SX679_.jpg",
+       "image": "https://m.media-amazon.com/images/I/71LGtEZNG4L._SX679_.jpg",
       "amazon": "https://www.amazon.in/s?k=amazonbasics+dumbbells",
       "flipkart": "https://www.flipkart.com/search?q=dumbbells",
     },
@@ -71,7 +71,7 @@ class _MarketplaceHomeState extends State<MarketplaceHome> {
       "price": "₹789",
       "category": "Yoga",
       "brand": "Boldfit",
-       "image": "https://m.media-amazon.com/images/I/617gCKmEkJL._SX679_.jpg",
+      "image": "https://m.media-amazon.com/images/I/71nw6VX3HhL._SX679_.jpg",
       "amazon": "https://www.amazon.in/s?k=boldfit+yoga+blocks",
       "flipkart": "https://www.flipkart.com/search?q=yoga+blocks",
     },
@@ -81,7 +81,7 @@ class _MarketplaceHomeState extends State<MarketplaceHome> {
       "price": "₹399",
       "category": "Clothing",
       "brand": "Boldfit",
-       "image": "https://m.media-amazon.com/images/I/617gCKmEkJL._SX679_.jpg",
+       "image": "https://m.media-amazon.com/images/I/61oSqmNgHYL._SX679_.jpg",
       "amazon": "https://www.amazon.in/s?k=boldfit+gym+tshirt",
       "flipkart": "https://www.flipkart.com/search?q=boldfit+gym+tshirt",
     },
@@ -441,6 +441,7 @@ class ProductDetails extends StatelessWidget {
 
                     const SizedBox(height: 20),
 
+
 // ---------- PRODUCT IMAGE CLEAN & MODERN ----------
 Container(
   margin: const EdgeInsets.only(top: 10, bottom: 20),
@@ -451,7 +452,7 @@ Container(
       BoxShadow(
         color: Colors.black12,
         blurRadius: 10,
-        offset: const Offset(0, 4),
+        offset: Offset(0, 4),
       ),
     ],
   ),
@@ -461,10 +462,26 @@ Container(
       product["image"],
       width: double.infinity,
       height: 260,
-      fit: BoxFit.contain, // ← fills the box beautifully
+      fit: BoxFit.contain,
+
+      // ★ FIX: Show placeholder if image fails ★
+      errorBuilder: (context, error, stackTrace) {
+        return Container(
+          height: 260,
+          width: double.infinity,
+          color: Colors.grey.shade200,
+          alignment: Alignment.center,
+          child: const Icon(
+            Icons.image_not_supported,
+            size: 70,
+            color: Colors.grey,
+          ),
+        );
+      },
     ),
   ),
 ),
+
 
                     // --------- PRODUCT INFO ----------
                     Text(
