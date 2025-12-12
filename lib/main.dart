@@ -85,6 +85,72 @@ class _MarketplaceHomeState extends State<MarketplaceHome> {
       "amazon": "https://www.amazon.in/s?k=boldfit+gym+tshirt",
       "flipkart": "https://www.flipkart.com/search?q=boldfit+gym+tshirt",
     },
+    {
+    "id": "6",
+    "title": "Women Yoga Pants",
+    "price": "₹549",
+    "category": "Clothing",
+    "brand": "HRX",
+    "image": "https://m.media-amazon.com/images/I/61xkSXB25xL._SX569_.jpg",
+    "amazon": "https://www.amazon.in/s?k=yoga+pants+women",
+    "flipkart": "https://www.flipkart.com/search?q=yoga+pants+women",
+  },
+
+  {
+    "id": "7",
+    "title": "Skipping Rope",
+    "price": "₹199",
+    "category": "Accessories",
+    "brand": "Boldfit",
+    "image": "https://m.media-amazon.com/images/I/61JtE2osFV L._SX522_.jpg",
+    "amazon": "https://www.amazon.in/s?k=skipping+rope",
+    "flipkart": "https://www.flipkart.com/search?q=skipping+rope",
+  },
+
+  {
+    "id": "8",
+    "title": "Foam Roller",
+    "price": "₹699",
+    "category": "Yoga",
+    "brand": "AmazonBasics",
+    "image": "https://m.media-amazon.com/images/I/71S1fSx2DhL._SX522_.jpg",
+    "amazon": "https://www.amazon.in/s?k=foam+roller",
+    "flipkart": "https://www.flipkart.com/search?q=foam+roller",
+  },
+
+  {
+    "id": "9",
+    "title": "Kettlebell 8kg",
+    "price": "₹1,199",
+    "category": "Strength",
+    "brand": "Boldfit",
+    "image": "https://m.media-amazon.com/images/I/61p1+t0bkkL._SX569_.jpg",
+    "amazon": "https://www.amazon.in/s?k=kettlebell",
+    "flipkart": "https://www.flipkart.com/search?q=kettlebell",
+  },
+
+  {
+    "id": "10",
+    "title": "Push-Up Bars",
+    "price": "₹349",
+    "category": "Strength",
+    "brand": "Fashnex",
+    "image": "https://m.media-amazon.com/images/I/71k1JrVN6xL._SX425_.jpg",
+    "amazon": "https://www.amazon.in/s?k=push+up+bar",
+    "flipkart": "https://www.flipkart.com/search?q=push+up+bar",
+  },
+
+  {
+    "id": "11",
+    "title": "Sports Water Bottle",
+    "price": "₹299",
+    "category": "Accessories",
+    "brand": "Boldfit",
+    "image": "https://m.media-amazon.com/images/I/61xQF+xr3QL._SX522_.jpg",
+    "amazon": "https://www.amazon.in/s?k=sports+water+bottle",
+    "flipkart": "https://www.flipkart.com/search?q=sports+bottle",
+  },
+
   ];
 
   List<Map<String, dynamic>> filteredProducts = [];
